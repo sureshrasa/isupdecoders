@@ -2,14 +2,13 @@ from Parameter import *
 from ByteStream import *
 
 class NationalForwardCallIndicators(Parameter):
-    def __init__(self, stream):
-        super(NationalForwardCallIndicators, self).__init__(stream)
+    def __init__(self, decoder):
+        super(NationalForwardCallIndicators, self).__init__(decoder)
         
-        flags = stream.readByte()
-        self._isCliBlocking = flags & 0xA0
-        self._isNetworkTranslatedAddress = flags & 0x80
-        self._isPriorityAccess = flags & 0x40
-        self._isProtection = flags & 0x20
+        self._isCliBlocking = decoder.readField(1)
+        self._isNetworkTranslatedAddress = decoder.readField(1)
+        self._isPriorityAccess = decoder.readField(1)
+        self._isProtection = decoder.readField(1)
 
     @property
     def code(self):

@@ -1,9 +1,9 @@
 from ByteStream import *
 
 class Parameter:
-    def __init__(self, stream):
-        self._code = stream.readByte()
-        self._length = stream.readByte()
+    def __init__(self, decoder):
+        self._code = decoder.readField(8)
+        self._length = decoder.readField(8)
 
     @property
     def code(self):

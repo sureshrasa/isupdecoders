@@ -2,16 +2,14 @@ from Parameter import *
 from ByteStream import *
 
 class PresentationNumber(Parameter):
-    def __init__(self, stream):
-        super(PresentationNumber, self).__init__(stream)
+    def __init__(self, decoder):
+        super(PresentationNumber, self).__init__(decoder)
         
-        byte = stream.readByte()
-        self._natureOfAddress = byte >> 1
-        self._isOddAddressSignals = byte & 0x1
+        self._natureOfAddress = decoder.readField(7)
+        self._isOddAddressSignals = decoder.readField(1)
 
-        byte = stream.readByte()
-        self._screeningIndicator = byte >> 6
-        self._addressPresentationRestricted = (byte >> 4) & 0x3
+        self._screeningIndicator = decoder.readField(2)
+        self._addressPresentationRestricted = decoder.readField(2)
 
     @property
     def code(self):
