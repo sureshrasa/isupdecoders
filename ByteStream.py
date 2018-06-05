@@ -1,4 +1,5 @@
 from io import BytesIO
+from bitstring import BitArray
 
 class ByteStream:
     def __init__(self, payLoad):
@@ -6,3 +7,6 @@ class ByteStream:
 
     def readByte(self):
         return self._stream.read(1)[0]
+
+    def fromBits(bitString):
+        return ByteStream(BitArray(bitString).hex)
