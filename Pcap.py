@@ -43,11 +43,12 @@ class Packet:
         self._tmStampSecs = decoder.readField(32)
         self._tmStampMillisecs = decoder.readField(32)
         self._captureLen = decoder.readField(32)
-        self._len = decoder.readField(32)
+        self._length = decoder.readField(32)
+        self._payload = decoder.readBytes(self._length)
 
     def __str__(self):
-        return "PcapPacket[timestampSecs:{0}, timestampMillsecs:{1}, captureLen:{2}, len:{3}]".format(
-                self.tmStampSecs, self.tmStampMillisecs, self.captureLen, self.length)                
+        return "PcapPacket[timestampSecs:{0}, timestampMillsecs:{1}, captureLen:{2}, len:{3}\npayload:{4}]".format(
+                self.tmStampSecs, self.tmStampMillisecs, self.captureLen, self.length, ",".join(map(str,self.payload)))                
     @property
     def tmStampSecs(self):
         return self._tmStampSecs
@@ -62,4 +63,8 @@ class Packet:
 
     @property
     def length(self):
-        return self._len
+        return self._length
+
+    @property
+    def payload(self):
+        return self._payload
