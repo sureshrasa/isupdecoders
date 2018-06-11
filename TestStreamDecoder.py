@@ -2,6 +2,7 @@ import unittest
 from StreamDecoder import *
 
 from bitstring import BitArray
+from io import BytesIO
 
 class TestDecoder:
     def test1Bit(self):
@@ -77,12 +78,12 @@ class TestDecoder:
 
 class TestStreamDecoder(TestDecoder, unittest.TestCase):
     def fromBits(self, bitString):
-        return StreamDecoder(bytes.fromhex(BitArray(bitString).hex))
+        return StreamDecoder(BytesIO(bytes.fromhex(BitArray(bitString).hex)))
 
 class TestStreamDecoderSlice(TestDecoder, unittest.TestCase):
     def fromBits(self, bitString):
         data = bytes.fromhex(BitArray(bitString + ", 0x1234").hex)
-        return StreamDecoderSlice(StreamDecoder(data), len(data) - 2)
+        return StreamDecoderSlice(StreamDecoder(BytesIO(data)), len(data) - 2)
 
 if __name__ == '__main__':
     unittest.main()

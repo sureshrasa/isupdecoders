@@ -4,19 +4,25 @@
 #  Copyright: © Resilientplc.com Ltd. 2018 - All Rights Reserved
 #
 class StreamDecoder:
+    PAYLOAD_SIZE = 128
 
-    def __init__(self, payload):
-        self._payload = payload
+    def __init__(self, stream):
+        self._stream = stream
+        self._fillPayload()
+        self._prevLen = 0 
+
+    def _fillPayload(self):
+        self._payload = self._stream.read(StreamDecoder.PAYLOAD_SIZE)
         self._currByteIndex = 0
         self._currBitIndex = 0 
-        self._currBits = payload[0] 
-        self._prevLen = 0    
+        if len(self._payload) > 0:
+            self._currBits = self._payload[0] 
 
     def _readField(self, length):
-        if (self._currBitIndex == 8):
-            if (self._currByteIndex >= len(self._payload)):
-                raise Exception("Stream reached eof", self._currByteIndex)
+        if not self.hasMore():
+            raise Exception("Stream reached end")
 
+        if (self._currBitIndex == 8):
             self._currBitIndex = 0
             self._currByteIndex +=1
             self._currBits = self._payload[self._currByteIndex]
@@ -35,7 +41,12 @@ class StreamDecoder:
         return result;
 
     def hasMore(self):
-        return self._currBitIndex < 8 or self._currByteIndex < (len(self._payload)-1)
+        if self._currBitIndex < 8 or self._currByteIndex < (len(self._payload)-1):
+            return True
+
+        self._fillPayload()
+
+        return len(self._payload) > 0
 
     def readField(self, length):
         if length <= self._currBitIndex:
