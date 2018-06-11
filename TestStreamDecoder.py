@@ -98,14 +98,32 @@ class TestDecoder:
         self.assertEqual(stream.readField(4), 0x7)
         self.assertRaises(Exception, stream.skipBytes, 2)
 
+    def testReadBytesOnByteBoundaryOnSingleBuffer(self):
+        stream = self.fromBits("0x0123456789ABCDEF")
+        self.assertTrue(stream.hasMore())
+        stream.skipBytes(3)
+        self.assertTrue(stream.hasMore())
+        self.assertEqual(stream.readBytes(4), bytes.fromhex("6789ABCD"))
+        self.assertEqual(stream.readBytes(1), bytes.fromhex("EF"))
+        self.assertFalse(stream.hasMore())
+
+    def testReadBytesOnByteBoundaryOnMultipleBuffers(self):
+        stream = self.fromBits("0x0123456789ABCDEF", bufferSize=2)
+        self.assertTrue(stream.hasMore())
+        stream.skipBytes(3)
+        self.assertTrue(stream.hasMore())
+        self.assertEqual(stream.readBytes(4), bytes.fromhex("6789ABCD"))
+        self.assertEqual(stream.readBytes(1), bytes.fromhex("EF"))
+        self.assertFalse(stream.hasMore())
+
 class TestStreamDecoder(TestDecoder, unittest.TestCase):
-    def fromBits(self, bitString):
-        return StreamDecoder(BytesIO(bytes.fromhex(BitArray(bitString).hex)))
+    def fromBits(self, bitString, bufferSize=StreamDecoder.BUFFER_SIZE):
+        return StreamDecoder(BytesIO(bytes.fromhex(BitArray(bitString).hex)), bufferSize=bufferSize)
 
 class TestStreamDecoderSlice(TestDecoder, unittest.TestCase):
-    def fromBits(self, bitString):
+    def fromBits(self, bitString, bufferSize=StreamDecoder.BUFFER_SIZE):
         data = bytes.fromhex(BitArray(bitString + ", 0x1234").hex)
-        return StreamDecoderSlice(StreamDecoder(BytesIO(data)), len(data) - 2)
+        return StreamDecoderSlice(StreamDecoder(BytesIO(data), bufferSize=bufferSize), len(data) - 2)
 
 if __name__ == '__main__':
     unittest.main()
