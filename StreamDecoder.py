@@ -74,6 +74,13 @@ class StreamDecoder:
 
         return result
 
+    def skipBytes(self, len):
+        if self._currBitIndex%8 != 0:
+            raise Exception("Cannot skip bytes on non byte boundary")
+
+        if len > 0:
+            self.readField(len * 8)   
+
 class StreamDecoderSlice:
     def __init__(self, stream, size):
         self._stream = stream
@@ -85,7 +92,7 @@ class StreamDecoderSlice:
 
     def readField(self, length):
         if (self._bitLen < length):
-            raise Exception("Stream reached eof", self._bitLen, length)
+            raise Exception("Stream slice reached end", self._bitLen, length)
 
         result = self._stream.readField(length)
         self._bitLen -= length

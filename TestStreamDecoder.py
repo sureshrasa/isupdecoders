@@ -76,6 +76,28 @@ class TestDecoder:
         self.assertEqual(stream.readField(2),  0b11)
         self.assertFalse(stream.hasMore())
 
+    def testSkipBytesOnByteBoundary(self):
+        stream = self.fromBits("0x0123456789ABCDEF")
+        self.assertTrue(stream.hasMore())
+        stream.skipBytes(0)
+        stream.skipBytes(3)
+        self.assertTrue(stream.hasMore())
+        self.assertEqual(stream.readField(8), 0x67)
+        stream.skipBytes(2)
+        self.assertEqual(stream.readField(8), 0xCD)
+        stream.skipBytes(1)
+        self.assertFalse(stream.hasMore())
+        stream.skipBytes(0)
+
+    def testSkipBytesAcrossByteBoundaryThrows(self):
+        stream = self.fromBits("0x0123456789ABCDEF")
+        self.assertTrue(stream.hasMore())
+        stream.skipBytes(3)
+        stream.skipBytes(0)
+        self.assertTrue(stream.hasMore())
+        self.assertEqual(stream.readField(4), 0x7)
+        self.assertRaises(Exception, stream.skipBytes, 2)
+
 class TestStreamDecoder(TestDecoder, unittest.TestCase):
     def fromBits(self, bitString):
         return StreamDecoder(BytesIO(bytes.fromhex(BitArray(bitString).hex)))
