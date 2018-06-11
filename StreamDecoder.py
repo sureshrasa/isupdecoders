@@ -12,14 +12,6 @@ class StreamDecoder:
         self._currBits = payload[0] 
         self._prevLen = 0    
 
-    def skipBytes(self, len):
-        if (self._currBitIndex%8 != 0):
-            raise Exception("Cannot skip mid bytes", self._currByteIndex, self._currBitIndex)
-
-        self._currByteIndex += len
-        self._currBits = self._payload[self._currByteIndex]
-        self._prevLen = 0    
-
     def _readField(self, length):
         if (self._currBitIndex == 8):
             if (self._currByteIndex >= len(self._payload)):
@@ -31,9 +23,7 @@ class StreamDecoder:
         else:
            self._currBits = self._currBits >> self._prevLen
 
-        if (self._currBitIndex+length > 8):
-            raise Exception("Field crosses byte boundary", self._currByteIndex, self._currBitIndex, length)
-
+        assert (self._currBitIndex+length <= 8)
         assert(length > 0)
 
         result = self._currBits & ((1 << length) - 1)
